@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -9,14 +10,14 @@ import (
 )
 
 func main() {
-	// f is the file handle and an optional err is the error state
-	// if we fail to open this fail, it's not going to through an execption, there are NO exceptions in go
-	f, err := os.Open("myapp.log")
+	path := flag.String("path", "myapp.log", "Path to the log file")
+	level := flag.String("level", "ERROR", "Log level to be printed, e.g INFO, ERROR, DEBUG")
+	flag.Parse()
+
+	f, err := os.Open(*path)
 	if err != nil {
 		log.Fatal(err)
 	}
-	// after the function that defer is called in (main), it will run the close function at the end.
-	//  housekeeping to clean up
 	defer f.Close()
 	r := bufio.NewReader(f)
 	for {
@@ -24,7 +25,7 @@ func main() {
 		if err != nil {
 			break
 		}
-		if strings.Contains(s, "ERROR") {
+		if strings.Contains(s, *level) {
 			fmt.Println(s)
 		}
 	}
